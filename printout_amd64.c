@@ -7,21 +7,49 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include "printout_amd64_external.h"
-#include "stdio.h"
 //constant/global variables and structs
 
-struct winsize size;
+struct winsize terminal_size;
 
+typedef struct Layers{
+	char* front_layer_pointer;
+	char* back_layer_pointer;
+}layers;
 
 unsigned long long base_get_terminal_columns_size() { //gets the size of the terminal in columns, 
 	
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-	return size.ws_col;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size);
+	return terminal_size.ws_col;
 }
 unsigned long long base_get_terminal_rows_size(){ //gets the size of the terminal in rows
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-	return size.ws_row;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size);
+	return terminal_size.ws_row;
 }
+void base_get_terminal_size(){ //puts the terminal size into the window_size struct
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size);
+	return;
+}
+bool base_init_frame(){ //sets the size of the terminal and allocates memory
+	base_get_terminal_size();
+	base_set_terminal_size(terminal_size.ws_col,terminal_size.ws_row);
+	switch(base_allocate_output_space()){
+	
+		case false:
+			return false;
+			break;
+		default:
+			break;
+
+	}
+	
+	return true;
+	
+	
+	
+
+
+}
+
 
 void int64_to_string(unsigned long long number, char* str) { //turns a 64bit integer into a string
     if (number == 0) {
